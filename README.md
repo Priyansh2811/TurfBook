@@ -31,36 +31,8 @@ The system uses `turfbook.db` with the following key tables:
 
 ## 📁 Project Folder Structure
 
-TURFBOOK/
-│
-├── pycache/
-│
-├── static/
-│ └── css/
-│ └── style.css
-│
-├── templates/
-│ ├── admin/
-│ ├── about_us.html
-│ ├── base.html
-│ ├── book.html
-│ ├── booking_receipt.html
-│ ├── confirm_booking.html
-│ ├── dashboard.html
-│ ├── find_turfs.html
-│ ├── index.html
-│ ├── login.html
-│ ├── profile.html
-│ ├── register.html
-│ ├── sports.html
-│ └── turf_detail.html
-│
-├── app.py
-├── requirements.txt
-├── run.sh
-├── turfbook.db
-├── README.md
-└── README_FINAL.md
+TURFBOOK/ | ├── __pycache__/ | ├── static/ | │ └── css/ | │     └── style.css | ├── templates/ | │ ├── admin/ | │ ├── about_us.html | │ ├── base.html | │ ├── book.html | │ ├── booking_receipt.html | │ ├── confirm_booking.html | │ ├── dashboard.html | │ ├── find_turfs.html | │ ├── index.html | │ ├── login.html | │ ├── profile.html | │ ├── register.html | │ ├── sports.html | │ └── turf_detail.html | ├── app.py | ├── requirements.txt | ├── run.sh | ├── turfbook.db | ├── README.md | └── README_FINAL.md
+
 
 ## 🏁 Getting Started
 
