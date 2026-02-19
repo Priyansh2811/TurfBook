@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% block title %}Confirm Booking - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+  .confirm-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .confirm-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  .confirm-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .confirm-icon {
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+  }
+
+  .confirm-header h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .confirm-header p {
+    color: var(--gray);
+    font-size: 0.95rem;
+  }
+
+  .summary-section {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.95rem;
+  }
+
+  .summary-item:last-child {
+    border-bottom: none;
+  }
+
+  .summary-label {
+    color: var(--gray);
+    font-weight: 500;
+  }
+
+  .summary-value {
+    font-weight: 600;
+    color: var(--dark);
+  }
+
+  .summary-value.highlight {
+    color: var(--green);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .price-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0 0;
+    margin-top: 12px;
+    border-top: 2px solid #e5e7eb;
+  }
+
+  .price-summary .label {
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .price-summary .amount {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--green);
+  }
+
+  .terms {
+    background: #fef9c3;
+    border: 1px solid #fcd34d;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 24px;
+    font-size: 0.85rem;
+    color: #854d0e;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .terms i {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .confirm-btn {
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .confirm-card {
+      padding: 24px;
+    }
+
+    .action-buttons {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+  <div class="confirm-card">
+    <!-- HEADER -->
+    <div class="confirm-header">
+      <div class="confirm-icon">✅</div>
+      <h1>Review Your Booking</h1>
+      <p>Please review the details before confirming your booking</p>
+    </div>
+
+    <!-- TURF SUMMARY -->
+    <div class="summary-section">
+      <div class="summary-item">
+        <span class="summary-label">🏟️ Turf</span>
+        <span class="summary-value">{{ booking.turf_name }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">📍 Location</span>
+        <span class="summary-value">{{ booking.location }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">📅 Date</span>
+        <span class="summary-value">{{ booking.booking_date }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">🕐 Time</span>
+        <span class="summary-value">{{ booking.start_time }} – {{ booking.end_time }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">⏱️ Duration</span>
+        <span class="summary-value">{{ booking.duration_hours }} hour{% if booking.duration_hours != 1 %}s{% endif %}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">🏃 Sport</span>
+        <span class="summary-value">{{ booking.sport }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">👥 Players</span>
+        <span class="summary-value">{{ booking.players }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">💰 Rate</span>
+        <span class="summary-value">₹{{ booking.price_per_hour }}/hr</span>
+      </div>
+      
+      <!-- PRICE BREAKDOWN -->
+      <div class="price-summary">
+        <span class="label">Total Amount</span>
+        <span class="amount">₹{{ booking.total_amount }}</span>
+      </div>
+    </div>
+
+    <!-- TERMS -->
+    <div class="terms">
+      <i class="fa fa-info-circle"></i>
+      <div>
+        <strong>Cancellation Policy:</strong> Free cancellation up to 24 hours before your booking. Cancellations within 24 hours may incur fees.
+      </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="action-buttons">
+      <a href="/find-turfs" class="btn btn-outline confirm-btn">
+        <i class="fa fa-arrow-left"></i> Back
+      </a>
+      <form method="POST" style="width: 100%;">
+        <button type="submit" class="btn btn-green confirm-btn" style="width: 100%; justify-content: center;">
+          <i class="fa fa-check-circle"></i> Confirm Booking
+        </button>
+      </form>
+    </div>
+
+    <!-- FOOTER NOTE -->
+    <p style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: var(--gray);">
+      <i class="fa fa-lock" style="color: var(--green); margin-right: 4px;"></i>
+      Your booking is secure and encrypted
+    </p>
+  </div>
+</div>
+{% endblock %}

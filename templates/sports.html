@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Explore Sports - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sports-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .sports-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .sports-header h1 {
+        font-size: 2.5rem;
+        color: #111;
+        margin-bottom: 10px;
+    }
+
+    .sports-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .sports-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .sport-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px 20px;
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .sport-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 30px rgba(22, 163, 74, 0.15);
+        border-color: var(--green);
+    }
+
+    .sport-icon {
+        width: 80px;
+        height: 80px;
+        background: #f0fdf4;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        transition: background 0.3s ease;
+    }
+
+    .sport-card:hover .sport-icon {
+        background: var(--green);
+        color: white;
+    }
+
+    .sport-card h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .sport-card p {
+        font-size: 0.9rem;
+        color: #777;
+        margin: 0;
+    }
+
+    .explore-badge {
+        margin-top: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--green);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .sport-card:hover .explore-badge {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sports-container">
+    <div class="sports-header">
+        <h1>Choose Your Sport</h1>
+        <p>Find the best turfs and courts for your favorite game</p>
+    </div>
+
+    <div class="sports-grid">
+        <a href="/find-turfs?sport=Football" class="sport-card">
+            <div class="sport-icon">⚽</div>
+            <h3>Football</h3>
+            <p>Multiple turf sizes available</p>
+            <span class="explore-badge">Explore Turfs →</span>
+        </a>
+
+        <a href="/find-turfs?sport=Cricket" class="sport-card">
+            <div class="sport-icon">🏏</div>
+            <h3>Cricket</h3>
+            <p>Box cricket & practice nets</p>
+            <span class="explore-badge">Explore Turfs →</span>
+        </a>
+
+        <a href="/find-turfs?sport=Badminton" class="sport-card">
+            <div class="sport-icon">🏸</div>
+            <h3>Badminton</h3>
+            <p>Indoor synthetic & wooden courts</p>
+            <span class="explore-badge">Explore Courts →</span>
+        </a>
+
+        <a href="/find-turfs?sport=Tennis" class="sport-card">
+            <div class="sport-icon">🎾</div>
+            <h3>Tennis</h3>
+            <p>Clay and hard courts</p>
+            <span class="explore-badge">Explore Courts →</span>
+        </a>
+
+        <a href="/find-turfs?sport=Basketball" class="sport-card">
+            <div class="sport-icon">🏀</div>
+            <h3>Basketball</h3>
+            <p>Full-size & half-size courts</p>
+            <span class="explore-badge">Explore Courts →</span>
+        </a>
+
+        <a href="/find-turfs?sport=Swimming" class="sport-card">
+            <div class="sport-icon">🏊</div>
+            <h3>Swimming</h3>
+            <p>Indoor and outdoor pools</p>
+            <span class="explore-badge">Explore Pools →</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

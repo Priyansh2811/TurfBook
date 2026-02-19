@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% block title %}Book {{ turf.name }} - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+  .book-layout { display: grid; grid-template-columns: 1fr 380px; gap: 30px; padding: 40px; max-width: 1100px; margin: 0 auto; }
+  .book-form-card { background: white; border-radius: 20px; padding: 36px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .book-form-card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+  .book-form-card .subtitle { color: var(--gray); margin-bottom: 28px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .turf-summary { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: sticky; top: 80px; }
+  .turf-summary-img { background: linear-gradient(135deg, #065f46, #022c22); height: 180px; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+  .turf-summary-body { padding: 22px; }
+  .turf-summary-body h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .turf-summary-body .loc { color: var(--gray); font-size: 0.85rem; margin-bottom: 14px; display: flex; align-items: center; gap: 5px; }
+  .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .label { color: var(--gray); }
+  .summary-row .val { font-weight: 600; }
+  .total-row { display: flex; justify-content: space-between; padding: 14px 0 0; margin-top: 4px; }
+  .total-row .label { font-weight: 700; font-size: 1.05rem; }
+  .total-row .val { font-size: 1.4rem; font-weight: 800; color: var(--green); }
+
+  .slot-status { padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
+  .slot-available { background: #dcfce7; color: #15803d; }
+  .slot-busy { background: #fee2e2; color: #b91c1c; }
+
+  @media(max-width: 800px) { .book-layout { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, #111, #0d2e1b); padding: 30px 40px; color: white;">
+  <div style="max-width:1100px; margin:0 auto; display:flex; align-items:center; gap:16px;">
+    <a href="/turf/{{ turf.id }}" style="color:rgba(255,255,255,0.6); font-size:0.9rem;"><i class="fa fa-arrow-left"></i> Back</a>
+    <span style="color:rgba(255,255,255,0.4);">/</span>
+    <span style="color:white; font-size:0.9rem;">Book {{ turf.name }}</span>
+  </div>
+</div>
+
+<div class="book-layout">
+  <!-- FORM -->
+  <div class="book-form-card">
+    <h2>Complete Your Booking</h2>
+    <p class="subtitle">Fill in the details to reserve your slot at {{ turf.name }}</p>
+
+    <form action="/book/{{ turf.id }}" method="post" id="bookingForm" onsubmit="return validateForm()">
+      <div class="form-group">
+        <label><span style="color:var(--red);">*</span> 📅 Select Date</label>
+        <input type="date" name="booking_date" id="bookingDate" class="form-control" min="{{ today }}" value="{{ today }}" required onchange="checkAvailability()">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label><span style="color:var(--red);">*</span> 🕐 Start Time</label>
+          <select name="start_time" id="startTime" class="form-control" required onchange="updateSummary(); validateTimes();">
+            <option value="">Select start time</option>
+            {% for slot in slots %}
+            <option value="{{ slot }}">{{ slot }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label><span style="color:var(--red);">*</span> 🕐 End Time</label>
+          <select name="end_time" id="endTime" class="form-control" required onchange="updateSummary(); validateTimes();">
+            <option value="">Select end time</option>
+            {% for slot in slots[1:] %}
+            <option value="{{ slot }}">{{ slot }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div id="slotStatus" class="slot-status"></div>
+
+      <div class="form-group">
+        <label><span style="color:var(--red);">*</span> 🏃 Sport</label>
+        <select name="sport" class="form-control" required>
+          <option value="">Select sport</option>
+          {% for s in turf.sports.split(',') %}
+          <option value="{{ s.strip() }}">{{ s.strip() }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>👥 Number of Players</label>
+        <input type="number" name="players" class="form-control" min="1" max="{{ turf.max_players }}" value="5" placeholder="How many players?">
+      </div>
+
+      <button type="submit" class="btn btn-green" id="submitBtn" style="width:100%; justify-content:center; font-size:1.05rem; padding:15px;">
+        <i class="fa fa-check-circle"></i> Continue to Confirmation
+      </button>
+      <p style="color:var(--gray); font-size:0.82rem; text-align:center; margin-top:12px;">
+        <i class="fa fa-shield-alt" style="color:var(--green)"></i> Secure booking · Free cancellation before 24hrs
+      </p>
+    </form>
+  </div>
+
+  <!-- TURF SUMMARY -->
+  <div>
+    <div class="turf-summary">
+      <div class="turf-summary-img">{{ turf.image_url }}</div>
+      <div class="turf-summary-body">
+        <h3>{{ turf.name }}</h3>
+        <div class="loc"><i class="fa fa-map-marker-alt" style="color:var(--red)"></i> {{ turf.location }}, {{ turf.city }}</div>
+
+        <div class="summary-row"><span class="label">Date</span><span class="val" id="sumDate">Today</span></div>
+        <div class="summary-row"><span class="label">Time</span><span class="val" id="sumTime">-</span></div>
+        <div class="summary-row"><span class="label">Duration</span><span class="val" id="sumDuration">-</span></div>
+        <div class="summary-row"><span class="label">Rate</span><span class="val">₹{{ turf.price_per_hour }}/hr</span></div>
+        <div class="total-row"><span class="label">Total</span><span class="val" id="sumTotal">₹0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const pricePerHour = {{ turf.price_per_hour }};
+const turfId = {{ turf.id }};
+const maxPlayers = {{ turf.max_players }};
+
+function updateSummary() {
+  const startVal = document.getElementById('startTime').value;
+  const endVal = document.getElementById('endTime').value;
+  const dateVal = document.getElementById('bookingDate').value;
+  
+  if (!startVal || !endVal) {
+    document.getElementById('sumTime').textContent = '-';
+    document.getElementById('sumDuration').textContent = '-';
+    document.getElementById('sumTotal').textContent = '₹0';
+    return;
+  }
+
+  const startH = parseInt(startVal);
+  const endH = parseInt(endVal);
+  const dur = endH - startH;
+
+  document.getElementById('sumDate').textContent = dateVal || 'Not selected';
+  document.getElementById('sumTime').textContent = startVal + ' – ' + endVal;
+  
+  if (dur > 0) {
+    document.getElementById('sumDuration').textContent = dur + ' hour' + (dur > 1 ? 's' : '');
+    document.getElementById('sumTotal').textContent = '₹' + (dur * pricePerHour);
+  } else if (dur === 0) {
+    document.getElementById('sumDuration').textContent = 'Invalid (same time)';
+    document.getElementById('sumTotal').textContent = '₹0';
+  } else {
+    document.getElementById('sumDuration').textContent = 'Invalid (end > start)';
+    document.getElementById('sumTotal').textContent = '₹0';
+  }
+}
+
+function validateTimes() {
+  const dateInput = document.getElementById('bookingDate').value;
+  const startVal = document.getElementById('startTime').value;
+  const endVal = document.getElementById('endTime').value;
+  const slotStatus = document.getElementById('slotStatus');
+  const submitBtn = document.getElementById('submitBtn');
+
+  if (startVal && endVal) {
+    const startH = parseInt(startVal.split(':')[0]);
+    const endH = parseInt(endVal.split(':')[0]);
+
+    // 1. Check if End Time is after Start Time
+    if (endH <= startH) {
+      showError('⚠️ End time must be after start time');
+      return false;
+    }
+
+    // 2. IMPORTANT: Current Time Validation for Today's Date
+    const today = new Date();
+    const selectedDate = new Date(dateInput);
+    
+    // Sirf date compare karne ke liye time zero kar rahe hain
+    today.setHours(0,0,0,0);
+    selectedDate.setHours(0,0,0,0);
+
+    if (selectedDate.getTime() === today.getTime()) {
+      const currentHour = new Date().getHours();
+      if (startH <= currentHour) {
+        showError(`⚠️ It's already ${currentHour}:00. Please select a future time.`);
+        return false;
+      }
+    }
+
+function showError(msg) {
+  const el = document.getElementById('slotStatus');
+  el.className = 'slot-status slot-busy';
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('submitBtn').disabled = true;
+}
+    // Agar sab sahi hai
+    slotStatus.style.display = 'none';
+    submitBtn.disabled = false;
+    return true;
+  }
+  return true;
+}
+
+function validateForm() {
+  const date = document.getElementById('bookingDate').value;
+  const startTime = document.getElementById('startTime').value;
+  const endTime = document.getElementById('endTime').value;
+  const sport = document.querySelector('select[name="sport"]').value;
+  const players = document.querySelector('input[name="players"]').value;
+
+  if (!date || !startTime || !endTime || !sport) {
+    alert('Please fill in all required fields');
+    return false;
+  }
+
+  if (!validateTimes()) {
+    return false;
+  }
+
+  const playerCount = parseInt(players);
+  if (isNaN(playerCount) || playerCount < 1 || playerCount > maxPlayers) {
+    alert('Players must be between 1 and ' + maxPlayers);
+    return false;
+  }
+
+  return true;
+}
+
+function checkAvailability() {
+  updateSummary();
+  const date = document.getElementById('bookingDate').value;
+  if (!date) return;
+  
+  fetch(`/api/slots/${turfId}?date=${date}`)
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById('slotStatus');
+      if (data.booked && data.booked.length > 0) {
+        el.className = 'slot-status slot-busy';
+        el.textContent = '⚠️ ' + data.booked.length + ' slot(s) already booked for this date. Please check availability.';
+        el.style.display = 'block';
+      } else {
+        el.className = 'slot-status slot-available';
+        el.textContent = '✅ All slots available for this date!';
+        el.style.display = 'block';
+      }
+    })
+    .catch(err => {
+      console.error('Error checking availability:', err);
+      document.getElementById('slotStatus').style.display = 'none';
+    });
+}
+
+// Initialize on page load
+document.getElementById('startTime').addEventListener('change', updateSummary);
+document.getElementById('endTime').addEventListener('change', updateSummary);
+document.getElementById('bookingDate').addEventListener('change', checkAvailability);
+
+// Initial summary update
+updateSummary();
+</script>
+{% endblock %}

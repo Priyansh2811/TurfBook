@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}Find Turfs - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header { background: linear-gradient(135deg, #111, #0d2e1b); padding: 40px; color: white; text-align: center; }
+  .page-header h1 { font-size: 2rem; margin-bottom: 8px; }
+  .page-header p { color: #9ca3af; }
+
+  .find-layout { display: grid; grid-template-columns: 280px 1fr; gap: 30px; padding: 30px 40px; max-width: 1300px; margin: 0 auto; }
+  
+  /* SIDEBAR */
+  .filters-sidebar { position: sticky; top: 80px; height: fit-content; }
+  .filter-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 16px; }
+  .filter-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .filter-option { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
+  .filter-option input { accent-color: var(--green); width: 16px; height: 16px; cursor: pointer; }
+  .filter-option label { cursor: pointer; font-size: 0.9rem; color: #374151; }
+  .price-range { display: flex; gap: 8px; width: 100%; }
+  .price-range input { width: 50%; padding: 8px 10px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem;  min-width: 0; }
+  .price-range input:focus { outline: none; border-color: var(--green); }
+  .apply-btn { width: 100%; padding: 10px; background: var(--green); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+  .apply-btn:hover { background: var(--green-dark); }
+  
+  /* RESULTS */
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .results-count { font-weight: 600; color: var(--gray); }
+  .sort-select { padding: 8px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem; cursor: pointer; }
+  .sort-select:focus { outline: none; border-color: var(--green); }
+  
+  .turf-list-card { display: grid; grid-template-columns: 220px 1fr auto; gap: 0; background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; margin-bottom: 20px; transition: transform 0.2s, box-shadow 0.2s; }
+  .turf-list-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+  .turf-list-img { background: linear-gradient(135deg, #065f46, #022c22); display: flex; align-items: center; justify-content: center; font-size: 3.5rem; position: relative; }
+  .turf-list-img .distance-badge { position: absolute; top: 10px; left: 10px; background: var(--green); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
+  .turf-list-body { padding: 20px; }
+  .turf-list-body h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .turf-list-body .location { color: var(--gray); font-size: 0.85rem; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+  .turf-list-meta { display: flex; gap: 16px; align-items: center; font-size: 0.85rem; color: var(--gray); margin-bottom: 12px; }
+  .turf-list-meta .rating { color: var(--yellow); font-weight: 700; }
+  .sports-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .sports-tag { padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: #dcfce7; color: #15803d; }
+  .turf-list-right { padding: 20px; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; border-left: 1px solid #f3f4f6; min-width: 150px; }
+  .big-price { font-size: 1.4rem; font-weight: 800; }
+  .big-price span { font-size: 0.8rem; font-weight: 400; color: var(--gray); }
+
+  .no-results { text-align: center; padding: 80px 20px; }
+  .no-results .emoji { font-size: 4rem; margin-bottom: 16px; }
+  .no-results h3 { font-size: 1.3rem; margin-bottom: 8px; }
+  .no-results p { color: var(--gray); }
+
+  @media(max-width: 900px) {
+    .find-layout { grid-template-columns: 1fr; }
+    .turf-list-card { grid-template-columns: 1fr; }
+    .turf-list-img { height: 160px; }
+    .turf-list-right { flex-direction: row; align-items: center; border-left: none; border-top: 1px solid #f3f4f6; }
+    .filters-sidebar { position: static; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Find Sports Turfs</h1>
+  <p>{{ turfs|length }} turfs found {% if location %}in "{{ location }}"{% endif %} {% if sport %}for {{ sport }}{% endif %}</p>
+</div>
+
+<div class="find-layout">
+  <!-- SIDEBAR -->
+  <aside class="filters-sidebar">
+    <div class="filter-card">
+      <h3><i class="fa fa-search" style="color:var(--green)"></i> Search</h3>
+      <form action="/find-turfs" method="get" id="filterForm">
+        <div class="form-group">
+          <input type="text" name="location" class="form-control" placeholder="Location..." value="{{ location }}">
+        </div>
+        <div class="form-group">
+          <label>Price Range (₹/hr)</label>
+          <div class="price-range">
+            <input type="number" name="min_price" placeholder="Min" value="{{ request.args.get('min_price', '') }}">
+      
+            <input type="number" name="max_price" placeholder="Max" value="{{ request.args.get('max_price', '') }}">
+          </div>
+        </div>
+        <input type="hidden" name="sport" value="{{ sport }}">
+        <input type="hidden" name="sort" value="{{ sort }}" id="hiddenSort">
+        <button type="submit" class="apply-btn">Apply Filters</button>
+      </form>
+    </div>
+
+    <div class="filter-card">
+      <h3><i class="fa fa-futbol" style="color:var(--green)"></i> Sports</h3>
+      {% for s in ['Football', 'Cricket', 'Badminton', 'Tennis', 'Basketball'] %}
+      <div class="filter-option">
+        <input type="radio" name="sportFilter" id="sport_{{ s }}" value="{{ s }}" {% if sport == s %}checked{% endif %} onchange="filterBySport('{{ s }}')">
+        <label for="sport_{{ s }}">{{ s }}</label>
+      </div>
+      {% endfor %}
+      <div class="filter-option">
+        <input type="radio" name="sportFilter" id="sport_all" value="" {% if not sport %}checked{% endif %} onchange="filterBySport('')">
+        <label for="sport_all">All Sports</label>
+      </div>
+    </div>
+
+    <div class="filter-card">
+      <h3><i class="fa fa-star" style="color:var(--yellow)"></i> Rating</h3>
+      <div class="filter-option"><input type="radio" name="ratingFilter"> <label>4.5+ ⭐⭐⭐⭐⭐</label></div>
+      <div class="filter-option"><input type="radio" name="ratingFilter"> <label>4.0+ ⭐⭐⭐⭐</label></div>
+      <div class="filter-option"><input type="radio" name="ratingFilter"> <label>Any Rating</label></div>
+    </div>
+  </aside>
+
+  <!-- RESULTS -->
+  <div class="results-area">
+    <div class="results-header">
+      <div class="results-count">{{ turfs|length }} turfs found</div>
+      <form action="/find-turfs" method="get" style="display:inline">
+        <input type="hidden" name="location" value="{{ location }}">
+        <input type="hidden" name="sport" value="{{ sport }}">
+        <select name="sort" class="sort-select" onchange="this.form.submit()">
+          <option value="rating" {% if sort=='rating' %}selected{% endif %}>Sort: Top Rated</option>
+          <option value="price_asc" {% if sort=='price_asc' %}selected{% endif %}>Sort: Price Low to High</option>
+          <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>Sort: Price High to Low</option>
+          <option value="distance" {% if sort=='distance' %}selected{% endif %}>Sort: Distance</option>
+        </select>
+      </form>
+    </div>
+
+    {% if turfs %}
+      {% for turf in turfs %}
+      <div class="turf-list-card">
+        <div class="turf-list-img">
+          {{ turf.image_url }}
+        </div>
+        <div class="turf-list-body">
+          <h3>{{ turf.name }}</h3>
+          <div class="location"><i class="fa fa-map-marker-alt" style="color:var(--red)"></i> {{ turf.location }}, {{ turf.city }}</div>
+          <div class="turf-list-meta">
+            <span class="rating"><i class="fa fa-star"></i> {{ turf.rating }}</span>
+            <span>({{ turf.review_count }} reviews)</span>
+            <span>🕐 {{ turf.open_time }} – {{ turf.close_time }}</span>
+            <span>👥 {{ turf.max_players }} players</span>
+          </div>
+          <div class="sports-tags">
+            {% for s in turf.sports.split(',') %}
+            <span class="sports-tag">{{ s.strip() }}</span>
+            {% endfor %}
+          </div>
+          <div class="amenity-tags">
+            {% for a in turf.amenities.split(',') %}
+            <span class="amenity-tag">{{ a.strip() }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="turf-list-right">
+          <div>
+            <div class="big-price">₹{{ turf.price_per_hour }}<span>/hr</span></div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:auto;">
+            <a href="/turf/{{ turf.id }}" class="btn btn-outline btn-sm">View Details</a>
+            <a href="/book/{{ turf.id }}" class="btn btn-green btn-sm">Book Now</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-results">
+        <div class="emoji">🔍</div>
+        <h3>No turfs found</h3>
+        <p>Try adjusting your filters or search in a different location.</p>
+        <a href="/find-turfs" class="btn btn-green mt-4">Clear Filters</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function filterBySport(sport) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('sport', sport);
+  window.location.href = url.toString();
+}
+</script>
+{% endblock %}

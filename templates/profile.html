@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Profile - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+  .profile-layout { max-width: 700px; margin: 40px auto; padding: 0 20px; }
+  .profile-card { background: white; border-radius: 20px; padding: 36px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #f3f4f6; }
+  .big-avatar { width: 90px; height: 90px; background: linear-gradient(135deg, var(--green), var(--green-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; font-weight: 800; }
+  .profile-header h2 { font-size: 1.5rem; font-weight: 800; }
+  .profile-header p { color: var(--gray); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-layout">
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="big-avatar">{{ user.name[0].upper() }}</div>
+      <div>
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+        <span class="badge badge-green">{{ user.role.title() }}</span>
+      </div>
+    </div>
+    <form action="/profile" method="post">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+      </div>
+      <div class="form-group">
+        <label>Email Address (cannot change)</label>
+        <input type="email" class="form-control" value="{{ user.email }}" disabled style="background:#f9fafb; color:var(--gray);">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" name="phone" class="form-control" value="{{ user.phone or '' }}" placeholder="+91 XXXXX XXXXX">
+      </div>
+      <div class="form-group">
+        <label>Member Since</label>
+        <input type="text" class="form-control" value="{{ user.created_at[:10] }}" disabled style="background:#f9fafb; color:var(--gray);">
+      </div>
+      <div style="display:flex; gap:12px; margin-top:8px;">
+        <button type="submit" class="btn btn-green"><i class="fa fa-save"></i> Save Changes</button>
+        <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

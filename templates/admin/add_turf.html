@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Add Turf - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+  .admin-layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; min-height: calc(100vh - 64px); }
+  .admin-sidebar { background: #1f2937; padding: 24px 16px; }
+  .admin-sidebar h3 { color: #9ca3af; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin: 20px 0 8px; padding: 0 8px; }
+  .admin-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: #9ca3af; font-size: 0.95rem; margin-bottom: 2px; transition: all 0.2s; }
+  .admin-nav a:hover, .admin-nav a.active { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .admin-nav a i { width: 18px; }
+  .admin-content { padding: 30px; background: #f9fafb; }
+  .form-card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); max-width: 700px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <div class="admin-sidebar">
+    <div class="admin-nav">
+      <h3>Main</h3>
+      <a href="/admin"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/admin/turfs" class="active"><i class="fa fa-map-marker-alt"></i> Turfs</a>
+      <a href="/admin/bookings"><i class="fa fa-calendar"></i> Bookings</a>
+      <a href="/admin/users"><i class="fa fa-users"></i> Users</a>
+      <h3>Site</h3>
+      <a href="/"><i class="fa fa-home"></i> View Site</a>
+      <a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <div class="form-card">
+      <h2 style="margin-bottom:24px; font-size:1.3rem; font-weight:800;">Add New Turf</h2>
+      <form action="/admin/turf/add" method="post">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Turf Name *</label>
+            <input type="text" name="name" class="form-control" required placeholder="e.g. Green Arena">
+          </div>
+          <div class="form-group">
+            <label>Location *</label>
+            <input type="text" name="location" class="form-control" required placeholder="e.g. Koramangala">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" name="city" class="form-control" required placeholder="e.g. Bangalore">
+          </div>
+          <div class="form-group">
+            <label>Distance (km)</label>
+            <input type="number" name="distance" class="form-control" step="0.1" placeholder="e.g. 2.5">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price per Hour (₹) *</label>
+            <input type="number" name="price_per_hour" class="form-control" required placeholder="e.g. 1200">
+          </div>
+          <div class="form-group">
+            <label>Max Players</label>
+            <input type="number" name="max_players" class="form-control" value="22">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Open Time</label>
+            <input type="text" name="open_time" class="form-control" value="6 AM" placeholder="e.g. 6 AM">
+          </div>
+          <div class="form-group">
+            <label>Close Time</label>
+            <input type="text" name="close_time" class="form-control" value="11 PM" placeholder="e.g. 11 PM">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Sports (comma-separated) *</label>
+          <input type="text" name="sports" class="form-control" required placeholder="e.g. Football,Cricket">
+        </div>
+        <div class="form-group">
+          <label>Amenities (comma-separated)</label>
+          <input type="text" name="amenities" class="form-control" placeholder="e.g. Parking,Floodlight,Cafeteria">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" class="form-control" rows="3" placeholder="Brief description of the turf..."></textarea>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <button type="submit" class="btn btn-green"><i class="fa fa-plus"></i> Add Turf</button>
+          <a href="/admin/turfs" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

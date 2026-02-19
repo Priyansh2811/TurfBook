@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}TurfBook - Find & Book Your Perfect Turf{% endblock %}</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <style>
+    :root {
+      --green: #22c55e;
+      --green-dark: #16a34a;
+      --yellow: #f59e0b;
+      --dark: #111827;
+      --gray: #6b7280;
+      --light: #f9fafb;
+      --white: #fff;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- FLASH MESSAGES -->
+<div class="flash-container" id="flashContainer">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash flash-{{ cat }}" onclick="this.remove()">
+        {% if cat == 'success' %}<i class="fa fa-check-circle"></i>
+        {% elif cat == 'danger' %}<i class="fa fa-times-circle"></i>
+        {% elif cat == 'warning' %}<i class="fa fa-exclamation-circle"></i>
+        {% else %}<i class="fa fa-info-circle"></i>{% endif %}
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="logo-icon">T</div>
+    TurfBook
+  </a>
+  <a href="/find-turfs" {% if request.path == '/find-turfs' %}class="active"{% endif %}>Find Turfs</a>
+  <a href="/sports">Sports</a>
+  <a href="{{ url_for('about_us') }}">About Us</a>
+  {% if session.get('role') == 'admin' %}
+  <a href="/admin" {% if '/admin' in request.path %}class="active"{% endif %}>Admin</a>
+  {% endif %}
+  {% if session.get('user_id') %}
+  <a href="/dashboard" {% if request.path == '/dashboard' %}class="active"{% endif %}>Dashboard</a>
+  {% endif %}
+  <div class="nav-phone" style="margin-left:auto;">
+  </div>
+  {% if session.get('user_id') %}
+    <a href="/profile" class="btn btn-outline btn-sm">
+      <i class="fa fa-user"></i> {{ session.get('user_name', '').split()[0] }}
+    </a>
+    <a href="/logout" class="btn btn-sm" style="background:#f3f4f6; color:#374151;">Logout</a>
+  {% else %}
+    <a href="/login" class="btn btn-outline btn-sm">Login</a>
+    <a href="/register" class="btn btn-outline btn-sm">Register</a>
+  {% endif %}
+  <a href="/find-turfs" class="btn btn-green btn-sm">Book Now</a>
+</nav>
+
+{% block content %}{% endblock %}
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo"><div class="logo-icon">T</div> TurfBook</div>
+      <p style="font-size:0.9rem;line-height:1.6;">Your one-stop destination for booking premium sports turfs. Play your favorite sport at the best facilities near you.</p>
+      <div class="social-links">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+    <div>
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/find-turfs">Find Turfs</a></li>
+        <li><a href="#">Sports Categories</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Terms & Conditions</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Sports</h4>
+      <ul>
+        <li>⚽ <a href="/find-turfs?sport=Football">Football</a></li>
+        <li>🏏 <a href="/find-turfs?sport=Cricket">Cricket</a></li>
+        <li>🏸 <a href="/find-turfs?sport=Badminton">Badminton</a></li>
+        <li>🎾 <a href="/find-turfs?sport=Tennis">Tennis</a></li>
+        <li>🏀 <a href="/find-turfs?sport=Basketball">Basketball</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact Us</h4>
+      <ul>
+        <li><i class="fa fa-map-marker-alt" style="color:var(--green)"></i> 123 Sports Hub, Koramangala, Bangalore 560034</li>
+        <li><i class="fa fa-phone" style="color:var(--green)"></i> +91 9878235518</li>
+        <li><i class="fa fa-envelope" style="color:var(--green)"></i> support@turfbook.com</li>
+        <li><i class="fa fa-headset" style="color:var(--green)"></i> 24/7 Customer Support</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 TurfBook. All rights reserved. Made  for sports enthusiasts.</p>
+  </div>
+</footer>
+
+<script>
+  // Auto-remove flash messages after 4s
+  setTimeout(() => {
+    document.querySelectorAll('.flash').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(100px)';
+      el.style.transition = 'all 0.3s';
+      setTimeout(() => el.remove(), 300);
+    });
+  }, 4000);
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

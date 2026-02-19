@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+  .dash-header { background: linear-gradient(135deg, #065f46, #022c22); padding: 40px; color: white; }
+  .dash-header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
+  .dash-header p { color: rgba(255,255,255,0.7); }
+  
+  .dash-layout { display: grid; grid-template-columns: 260px 1fr; gap: 30px; padding: 30px 40px; max-width: 1300px; margin: 0 auto; }
+  
+  .dash-sidebar { }
+  .profile-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); text-align: center; margin-bottom: 16px; }
+  .profile-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, var(--green), var(--green-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; font-weight: 800; margin: 0 auto 14px; }
+  .profile-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .profile-email { color: var(--gray); font-size: 0.85rem; margin-bottom: 14px; }
+  .dash-nav { background: white; border-radius: 16px; padding: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+  .dash-nav a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; color: #374151; font-weight: 500; transition: all 0.2s; font-size: 0.95rem; }
+  .dash-nav a:hover, .dash-nav a.active { background: #f0fdf4; color: var(--green); }
+  .dash-nav a i { width: 20px; }
+  
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-box { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); text-align: center; }
+  .stat-box .num { font-size: 2rem; font-weight: 800; color: var(--green); }
+  .stat-box .lbl { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
+  
+  /* BOOKING CARDS */
+  .section-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .booking-item { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 14px; display: flex; align-items: center; gap: 16px; }
+  .booking-item .booking-icon { width: 54px; height: 54px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+  .booking-item .booking-info { flex: 1; }
+  .booking-item .booking-info h4 { font-weight: 700; margin-bottom: 2px; }
+  .booking-item .booking-info .meta { color: var(--gray); font-size: 0.85rem; display: flex; gap: 12px; flex-wrap: wrap; }
+  .booking-item .booking-right { text-align: right; flex-shrink: 0; }
+  .booking-item .booking-right .amount { font-size: 1.1rem; font-weight: 800; color: var(--green); }
+  .booking-item .booking-right .actions { display: flex; gap: 8px; margin-top: 8px; }
+  
+  .empty-state { text-align: center; padding: 50px; background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { color: var(--gray); margin-bottom: 16px; }
+
+  @media(max-width:900px) { .dash-layout { grid-template-columns: 1fr; } .stats-row { grid-template-columns: 1fr 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dash-header">
+  <h1>Welcome back, {{ user.name }}! 👋</h1>
+  <p>Manage your bookings and profile</p>
+</div>
+
+<div class="dash-layout">
+  <!-- SIDEBAR -->
+  <div class="dash-sidebar">
+    <div class="profile-card">
+      <div class="profile-avatar">{{ user.name[0].upper() }}</div>
+      <div class="profile-name">{{ user.name }}</div>
+      <div class="profile-email">{{ user.email }}</div>
+      <a href="/profile" class="btn btn-outline btn-sm" style="width:100%; justify-content:center;">Edit Profile</a>
+    </div>
+    <div class="dash-nav">
+      <a href="/dashboard" class="active"><i class="fa fa-home"></i> Dashboard</a>
+      <a href="/find-turfs"><i class="fa fa-search"></i> Find Turfs</a>
+      <a href="/profile"><i class="fa fa-user"></i> Profile</a>
+      {% if session.get('role') == 'admin' %}<a href="/admin"><i class="fa fa-cog"></i> Admin Panel</a>{% endif %}
+      <a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div>
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="num">{{ upcoming|length }}</div>
+        <div class="lbl">Upcoming Bookings</div>
+      </div>
+      <div class="stat-box">
+        <div class="num">{{ past|length }}</div>
+        <div class="lbl">Past Bookings</div>
+      </div>
+      <div class="stat-box">
+        <div class="num">₹{{ (upcoming + past) | sum(attribute='total_amount') }}</div>
+        <div class="lbl">Total Spent</div>
+      </div>
+    </div>
+
+    <!-- UPCOMING -->
+    <div class="section-title"><i class="fa fa-calendar" style="color:var(--green)"></i> Upcoming Bookings</div>
+    {% if upcoming %}
+      {% for b in upcoming %}
+      <div class="booking-item">
+        <div class="booking-icon">🏟️</div>
+        <div class="booking-info">
+          <h4>{{ b.turf_name }}</h4>
+          <div class="meta">
+            <span>📅 {{ b.booking_date }}</span>
+            <span>🕐 {{ b.start_time }} – {{ b.end_time }}</span>
+            <span>🏃 {{ b.sport }}</span>
+            <span>📍 {{ b.location }}</span>
+          </div>
+        </div>
+        <div class="booking-right">
+          <div class="amount">₹{{ b.total_amount }}</div>
+          <span class="badge badge-green">{{ b.status }}</span>
+          <div class="actions">
+            <a href="/turf/{{ b.turf_id }}" class="btn btn-outline btn-sm">View</a>
+            <form action="/cancel-booking/{{ b.id }}" method="post" onsubmit="return confirm('Cancel this booking?')">
+              <button type="submit" class="btn btn-red btn-sm">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <div class="icon">📅</div>
+        <p>No upcoming bookings. Ready to play?</p>
+        <a href="/find-turfs" class="btn btn-green">Find a Turf</a>
+      </div>
+    {% endif %}
+
+    <!-- PAST -->
+    {% if past %}
+    <div class="section-title" style="margin-top:28px;"><i class="fa fa-history" style="color:var(--gray)"></i> Past Bookings</div>
+    {% for b in past %}
+    <div class="booking-item" style="opacity:0.75;">
+      <div class="booking-icon" style="background:#f9fafb;">🏟️</div>
+      <div class="booking-info">
+        <h4>{{ b.turf_name }}</h4>
+        <div class="meta">
+          <span>📅 {{ b.booking_date }}</span>
+          <span>🕐 {{ b.start_time }} – {{ b.end_time }}</span>
+          <span>🏃 {{ b.sport }}</span>
+        </div>
+      </div>
+      <div class="booking-right">
+        <div class="amount">₹{{ b.total_amount }}</div>
+        <span class="badge {{ 'badge-red' if b.status == 'cancelled' else 'badge-gray' }}">{{ b.status }}</span>
+        <div class="actions">
+          <a href="/turf/{{ b.turf_id }}" class="btn btn-outline btn-sm">Review</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block title %}{{ turf.name }} - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+  .turf-hero { background: linear-gradient(135deg, #065f46, #022c22); padding: 60px 40px; color: white; display: flex; align-items: center; gap: 40px; }
+  .turf-hero-emoji { font-size: 5rem; }
+  .turf-hero-info h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+  .turf-hero-info .meta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .turf-hero-info .meta span { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.85); font-size: 0.95rem; }
+  .rating-big { font-size: 1.4rem; font-weight: 800; color: var(--yellow); }
+
+  .detail-layout { display: grid; grid-template-columns: 1fr 360px; gap: 30px; padding: 30px 40px; max-width: 1300px; margin: 0 auto; }
+  
+  .info-section { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; }
+  .info-section h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #f3f4f6; padding-bottom: 12px; }
+  
+  .sports-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .sport-item { background: #f0fdf4; border: 2px solid #dcfce7; border-radius: 12px; padding: 16px; text-align: center; }
+  .sport-item .icon { font-size: 1.8rem; margin-bottom: 6px; }
+  .sport-item .name { font-weight: 600; font-size: 0.9rem; color: #15803d; }
+
+  .amenities-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .amenity-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f9fafb; border-radius: 10px; font-size: 0.9rem; }
+  .amenity-item i { color: var(--green); }
+  
+  /* BOOKING CARD */
+  .booking-card { background: white; border-radius: 16px; padding: 26px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: sticky; top: 80px; }
+  .booking-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+  .booking-card .price { font-size: 1.8rem; font-weight: 800; color: var(--green); margin-bottom: 20px; }
+  .booking-card .price span { font-size: 1rem; font-weight: 400; color: var(--gray); }
+
+  /* REVIEWS */
+  .review-item { border-bottom: 1px solid #f3f4f6; padding: 16px 0; }
+  .review-item:last-child { border-bottom: none; }
+  .review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .reviewer-name { font-weight: 700; font-size: 0.95rem; }
+  .review-date { color: var(--gray); font-size: 0.8rem; margin-top: 2px; }
+  .review-stars { color: var(--yellow); }
+  .review-comment { font-size: 0.9rem; color: #374151; line-height: 1.5; }
+
+  .write-review { background: #f9fafb; border-radius: 14px; padding: 20px; margin-top: 16px; }
+  .write-review h4 { font-weight: 700; margin-bottom: 14px; }
+  .star-rating { display: flex; gap: 8px; margin-bottom: 14px; }
+  .star-rating input { display: none; }
+  .star-rating label { font-size: 1.8rem; cursor: pointer; color: #d1d5db; transition: color 0.1s; }
+  .star-rating input:checked ~ label,
+  .star-rating label:hover,
+  .star-rating label:hover ~ label { color: var(--yellow); }
+  .star-rating { flex-direction: row-reverse; }
+
+  @media(max-width: 900px) { .detail-layout { grid-template-columns: 1fr; } .sports-grid { grid-template-columns: repeat(2,1fr); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<div class="turf-hero">
+  <div class="turf-hero-emoji">{{ turf.image_url }}</div>
+  <div class="turf-hero-info">
+    <h1>{{ turf.name }}</h1>
+    <div style="display:flex; align-items:center; gap:8px; color:rgba(255,255,255,0.7);">
+      <i class="fa fa-map-marker-alt" style="color:#f87171"></i>
+      {{ turf.location }}, {{ turf.city }}
+    </div>
+    <div class="meta">
+      <span><span class="rating-big">⭐ {{ turf.rating }}</span> ({{ turf.review_count }} reviews)</span>
+      <span>🕐 {{ turf.open_time }} – {{ turf.close_time }}</span>
+      <span>👥 Up to {{ turf.max_players }} players</span>
+      {% if turf.distance %}<span>📍 {{ turf.distance }} km away</span>{% endif %}
+    </div>
+  </div>
+  <div style="margin-left:auto;">
+    <div style="font-size:2rem; font-weight:800; color:white;">₹{{ turf.price_per_hour }}</div>
+    <div style="color:rgba(255,255,255,0.7);">per hour</div>
+    <a href="/book/{{ turf.id }}" class="btn btn-green" style="margin-top:12px; font-size:1rem; padding:12px 28px;">Book Now</a>
+  </div>
+</div>
+
+<div class="detail-layout">
+  <div class="main-content">
+    <!-- ABOUT -->
+    <div class="info-section">
+      <h2><i class="fa fa-info-circle" style="color:var(--green)"></i> About This Turf</h2>
+      <p style="color:#4b5563; line-height:1.7;">{{ turf.description or 'A premium sports facility with excellent amenities for players of all skill levels. Enjoy top-quality surfaces and a great sporting experience.' }}</p>
+    </div>
+
+    <!-- SPORTS -->
+    <div class="info-section">
+      <h2><i class="fa fa-futbol" style="color:var(--green)"></i> Available Sports</h2>
+      <div class="sports-grid">
+        {% for s in turf.sports.split(',') %}
+        {% set icons = {'Football':'⚽','Cricket':'🏏','Badminton':'🏸','Tennis':'🎾','Basketball':'🏀'} %}
+        <div class="sport-item">
+          <div class="icon">{{ icons.get(s.strip(), '🏃') }}</div>
+          <div class="name">{{ s.strip() }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- AMENITIES -->
+    <div class="info-section">
+      <h2><i class="fa fa-star" style="color:var(--green)"></i> Amenities</h2>
+      <div class="amenities-grid">
+        {% for a in turf.amenities.split(',') %}
+        <div class="amenity-item"><i class="fa fa-check-circle"></i> {{ a.strip() }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="info-section">
+      <h2><i class="fa fa-comments" style="color:var(--green)"></i> Reviews ({{ reviews|length }})</h2>
+      {% if reviews %}
+        {% for r in reviews %}
+        <div class="review-item">
+          <div class="review-header">
+            <div>
+              <div class="reviewer-name">{{ r.user_name }}</div>
+              <div class="review-date">{{ r.created_at[:10] }}</div>
+            </div>
+            <div class="review-stars">
+              {% for i in range(r.rating) %}⭐{% endfor %}
+            </div>
+          </div>
+          <div class="review-comment">{{ r.comment }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--gray); text-align:center; padding:20px;">No reviews yet. Be the first to review!</p>
+      {% endif %}
+
+      {% if session.get('user_id') %}
+      <div class="write-review">
+        <h4>Write a Review</h4>
+        <form action="/review/{{ turf.id }}" method="post">
+          <div class="form-group">
+            <label>Rating</label>
+            <div class="star-rating">
+              <input type="radio" name="rating" id="s5" value="5"><label for="s5">⭐</label>
+              <input type="radio" name="rating" id="s4" value="4"><label for="s4">⭐</label>
+              <input type="radio" name="rating" id="s3" value="3"><label for="s3">⭐</label>
+              <input type="radio" name="rating" id="s2" value="2"><label for="s2">⭐</label>
+              <input type="radio" name="rating" id="s1" value="1"><label for="s1">⭐</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <textarea name="comment" class="form-control" placeholder="Share your experience..." rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn btn-green">Submit Review</button>
+        </form>
+      </div>
+      {% else %}
+      <p style="color:var(--gray); margin-top:16px;"><a href="/login" style="color:var(--green); font-weight:600;">Login</a> to write a review.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- BOOKING SIDEBAR -->
+  <div>
+    <div class="booking-card">
+      <h3>Book This Turf</h3>
+      <div class="price">₹{{ turf.price_per_hour }} <span>/hour</span></div>
+
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="dateSelect" class="form-control" min="{{ today }}" value="{{ today }}">
+      </div>
+      <div class="form-group">
+        <label>Start Time</label>
+        <select id="startTime" class="form-control">
+          {% for slot in slots %}
+          <option value="{{ slot }}">{{ slot }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>End Time</label>
+        <select id="endTime" class="form-control">
+          {% for slot in slots[1:] %}
+          <option value="{{ slot }}">{{ slot }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div id="priceCalc" style="background:#f0fdf4; border-radius:10px; padding:14px; margin-bottom:16px; display:none;">
+        <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:var(--gray); margin-bottom:6px;">
+          <span>Duration</span><span id="durationText"></span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-weight:700; font-size:1.1rem;">
+          <span>Total</span><span id="totalText" style="color:var(--green);"></span>
+        </div>
+      </div>
+      <a href="/book/{{ turf.id }}" id="bookBtn" class="btn btn-green" style="width:100%; justify-content:center; font-size:1rem; padding:14px;">
+        <i class="fa fa-calendar-check"></i> Book Now
+      </a>
+      <div style="text-align:center; margin-top:12px; font-size:0.8rem; color:var(--gray);">
+        <i class="fa fa-shield-alt" style="color:var(--green)"></i> Secure booking · Instant confirmation
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const pricePerHour = {{ turf.price_per_hour }};
+
+function updatePriceCalc() {
+  const start = parseInt(document.getElementById('startTime').value);
+  const end = parseInt(document.getElementById('endTime').value);
+  const dur = end - start;
+  if (dur > 0) {
+    document.getElementById('priceCalc').style.display = 'block';
+    document.getElementById('durationText').textContent = dur + ' hour' + (dur > 1 ? 's' : '');
+    document.getElementById('totalText').textContent = '₹' + (dur * pricePerHour);
+  } else {
+    document.getElementById('priceCalc').style.display = 'none';
+  }
+}
+
+document.getElementById('startTime').addEventListener('change', updatePriceCalc);
+document.getElementById('endTime').addEventListener('change', updatePriceCalc);
+updatePriceCalc();
+</script>
+{% endblock %}

@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% block title %}TurfBook - Find & Book Your Perfect Turf{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 520px;
+    background: linear-gradient(135deg, #0a0a0a 0%, #111 50%, #0d2e1b 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2322c55e' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+  /* Basketball decorative */
+  .hero-ball {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle at 40% 35%, #f97316, #ea580c, #9a3412);
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+  .hero-lines {
+    position: absolute;
+    left: 0; top: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent 50%, #b45309 50%);
+    opacity: 0.07;
+  }
+  .hero-content { position: relative; z-index: 2; padding: 40px 20px; }
+  .hero h1 { font-size: 3rem; font-weight: 800; color: white; margin-bottom: 12px; line-height: 1.15; }
+  .hero h1 span { color: var(--yellow); }
+  .hero p { color: #d1d5db; font-size: 1.1rem; margin-bottom: 36px; }
+  .search-box {
+    display: flex;
+    gap: 0;
+    background: white;
+    border-radius: 50px;
+    padding: 6px 6px 6px 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+  .search-box input, .search-box select {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    flex: 1;
+    background: transparent;
+    padding: 6px 10px;
+    color: var(--dark);
+  }
+  .search-box .divider { width: 1px; background: #e5e7eb; margin: 4px 0; }
+  .search-box button { background: var(--green); color: white; border: none; padding: 12px 28px; border-radius: 40px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .search-box button:hover { background: var(--green-dark); }
+
+  /* FILTER BY SPORT */
+  .sport-section { padding: 50px 40px; text-align: center; }
+  .sport-section h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+  .sport-section p { color: var(--gray); margin-bottom: 28px; }
+  .sport-pills { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+  .sport-pill {
+    padding: 10px 22px;
+    border-radius: 50px;
+    border: 2px solid #e5e7eb;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    background: white;
+    color: var(--dark);
+  }
+  .sport-pill:hover, .sport-pill.active { background: var(--green); color: white; border-color: var(--green); }
+
+  /* NEARBY TURFS */
+  .nearby-section { padding: 20px 40px 60px; }
+  .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; }
+  .section-header h2 { font-size: 1.6rem; font-weight: 700; }
+  .section-header p { color: var(--gray); font-size: 0.9rem; }
+  .turfs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  /* STATS */
+  .stats-section { background: linear-gradient(135deg, var(--green), var(--green-dark)); padding: 60px 40px; text-align: center; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; max-width: 900px; margin: 0 auto; }
+  .stat-item .number { font-size: 2.5rem; font-weight: 800; color: white; }
+  .stat-item .label { color: rgba(255,255,255,0.8); font-size: 0.95rem; margin-top: 4px; }
+
+  /* HOW IT WORKS */
+  .how-section { padding: 70px 40px; text-align: center; }
+  .how-section h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+  .how-section .sub { color: var(--gray); margin-bottom: 50px; }
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 900px; margin: 0 auto; }
+  .step-card { padding: 36px 28px; }
+  .step-icon { width: 70px; height: 70px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 1.8rem; }
+  .step-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+  .step-card p { color: var(--gray); font-size: 0.9rem; line-height: 1.6; }
+  .step-number { background: var(--green); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; margin: 0 auto 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-lines"></div>
+  <div class="hero-ball"></div>
+  <div class="hero-content">
+    <h1>Find & Book Your <span>Perfect Turf</span></h1>
+    <p>Discover premium sports turfs near you. Book instantly.</p>
+    <form action="/find-turfs" method="get">
+      <div class="search-box">
+        <input type="text" name="location" placeholder="Enter location..." value="">
+        <div class="divider"></div>
+        <select name="sport">
+          <option value="">All Sports</option>
+          <option value="Football">⚽ Football</option>
+          <option value="Cricket">🏏 Cricket</option>
+          <option value="Badminton">🏸 Badminton</option>
+          <option value="Tennis">🎾 Tennis</option>
+          <option value="Basketball">🏀 Basketball</option>
+        </select>
+        <button type="submit">Search Turfs</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- FILTER BY SPORT -->
+<section class="sport-section" id="sports">
+  <h2>Filter by Sport</h2>
+  <p>Choose your favorite sport</p>
+  <div class="sport-pills">
+    <a href="/find-turfs" class="sport-pill active">🌐 All Sports</a>
+    <a href="/find-turfs?sport=Football" class="sport-pill">⚽ Football</a>
+    <a href="/find-turfs?sport=Cricket" class="sport-pill">🏏 Cricket</a>
+    <a href="/find-turfs?sport=Badminton" class="sport-pill">🏸 Badminton</a>
+    <a href="/find-turfs?sport=Tennis" class="sport-pill">🎾 Tennis</a>
+    <a href="/find-turfs?sport=Basketball" class="sport-pill">🏀 Basketball</a>
+  </div>
+</section>
+
+<!-- NEARBY TURFS -->
+<section class="nearby-section">
+  <div class="section-header">
+    <div>
+      <h2>Nearby Turfs</h2>
+      <p>Top rated sports facilities in your area</p>
+    </div>
+    <a href="/find-turfs" class="btn btn-outline btn-sm">View All <i class="fa fa-arrow-right"></i></a>
+  </div>
+  <div class="turfs-grid">
+    {% for turf in turfs %}
+    <div class="card turf-card" onclick="window.location='/turf/{{ turf.id }}'">
+      <div class="turf-card-img">
+        {{ turf.image_url }}
+        {% if turf.distance %}
+        <div class="distance-badge">{{ turf.distance }} km</div>
+        {% endif %}
+        <div class="sport-badges">
+          {% for sport in turf.sports.split(',') %}
+          <span class="sport-badge">{{ sport.strip() }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="turf-card-body">
+        <div class="turf-card-title">{{ turf.name }}</div>
+        <div class="turf-location">
+          <i class="fa fa-map-marker-alt" style="color:var(--red)"></i>
+          {{ turf.location }}, {{ turf.city }}
+        </div>
+        <div class="turf-meta">
+          <span class="rating"><i class="fa fa-star"></i> {{ turf.rating }}</span>
+          <span>({{ turf.review_count }})</span>
+          <span>🕐 {{ turf.open_time }} – {{ turf.close_time }}</span>
+          <span>👥 {{ turf.max_players }}</span>
+        </div>
+        <div class="amenity-tags">
+          {% for a in turf.amenities.split(',')[:3] %}
+          <span class="amenity-tag">{{ a.strip() }}</span>
+          {% endfor %}
+        </div>
+        <div class="turf-card-footer">
+          <div class="price">₹{{ turf.price_per_hour }} <span>/hour</span></div>
+          <a href="/book/{{ turf.id }}" class="btn btn-green btn-sm" onclick="event.stopPropagation()">Book Now</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item"><div class="number">500+</div><div class="label">Sports Turfs</div></div>
+    <div class="stat-item"><div class="number">50K+</div><div class="label">Happy Players</div></div>
+    <div class="stat-item"><div class="number">200K+</div><div class="label">Bookings Done</div></div>
+    <div class="stat-item"><div class="number">4.8★</div><div class="label">Average Rating</div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <h2>How It Works</h2>
+  <p class="sub">Book your perfect turf in 3 simple steps</p>
+  <div class="steps-grid">
+    <div class="card step-card">
+      <div class="step-number">1</div>
+      <div class="step-icon">🔍</div>
+      <h3>Search & Filter</h3>
+      <p>Search for turfs by location and sport. Filter by price, rating, and amenities to find your perfect match.</p>
+    </div>
+    <div class="card step-card">
+      <div class="step-number">2</div>
+      <div class="step-icon">📅</div>
+      <h3>Pick a Slot</h3>
+      <p>Choose your preferred date and time slot. See real-time availability and book instantly without any hassle.</p>
+    </div>
+    <div class="card step-card">
+      <div class="step-number">3</div>
+      <div class="step-icon">🏃</div>
+      <h3>Play & Enjoy</h3>
+      <p>Show up at the turf and play! Your booking is confirmed instantly with all the details sent to you.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

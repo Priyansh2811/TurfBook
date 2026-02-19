@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Register - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-wrapper { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 40px 20px; }
+  .auth-card { background: white; border-radius: 24px; padding: 44px 40px; box-shadow: 0 10px 50px rgba(0,0,0,0.1); width: 100%; max-width: 480px; }
+  .auth-logo { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 30px; font-size: 1.5rem; font-weight: 800; }
+  .auth-logo .logo-icon { background: var(--green); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+  .auth-card h2 { font-size: 1.6rem; font-weight: 800; text-align: center; margin-bottom: 6px; }
+  .auth-card .subtitle { color: var(--gray); text-align: center; margin-bottom: 28px; }
+  .auth-footer { text-align: center; margin-top: 20px; color: var(--gray); font-size: 0.9rem; }
+  .auth-footer a { color: var(--green); font-weight: 600; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  
+  /* Password mismatch error style */
+  .error-text { color: #dc2626; font-size: 0.8rem; margin-top: 5px; display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo"><div class="logo-icon">T</div> TurfBook</div>
+    <h2>Create Account</h2>
+    <p class="subtitle">Join thousands of sports enthusiasts</p>
+    
+    <form action="/register" method="post" onsubmit="return validatePasswords()">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" class="form-control" placeholder="Your full name" required>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" name="phone" class="form-control" placeholder="+91 XXXXX XXXXX">
+      </div>
+      
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" id="password" class="form-control" placeholder="Create a strong password" required minlength="6">
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="confirm_password" class="form-control" placeholder="Repeat your password" required>
+        <div id="passwordError" class="error-text">⚠️ Passwords do not match!</div>
+      </div>
+
+      <button type="submit" class="btn btn-green" style="width:100%; justify-content:center; padding:13px; font-size:1.05rem;">
+        <i class="fa fa-user-plus"></i> Create Account
+      </button>
+    </form>
+    
+    <div class="auth-footer">
+      Already have an account? <a href="/login">Login here</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function validatePasswords() {
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm_password').value;
+    const errorDiv = document.getElementById('passwordError');
+
+    if (password !== confirm) {
+        errorDiv.style.display = 'block';
+        return false; // Form submit nahi hoga
+    }
+    errorDiv.style.display = 'none';
+    return true;
+}
+</script>
+{% endblock %}

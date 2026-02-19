@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% block title %}Booking Confirmation - TurfBook{% endblock %}
+
+{% block extra_css %}
+<style>
+  .receipt-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .receipt-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border-top: 5px solid var(--green);
+  }
+
+  .receipt-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f3f4f6;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: #dcfce7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: var(--green);
+    margin: 0 auto 16px;
+  }
+
+  .receipt-header h1 {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--green);
+    margin-bottom: 6px;
+  }
+
+  .receipt-header p {
+    color: var(--gray);
+    font-size: 0.95rem;
+  }
+
+  .booking-id {
+    background: #f3f4f6;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--gray);
+  }
+
+  .booking-id strong {
+    color: var(--dark);
+    font-weight: 600;
+  }
+
+  .receipt-section {
+    margin-bottom: 28px;
+  }
+
+  .receipt-section-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .receipt-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    background: #f9fafb;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+
+  .receipt-item-label {
+    color: var(--gray);
+    font-weight: 500;
+  }
+
+  .receipt-item-value {
+    font-weight: 600;
+    color: var(--dark);
+  }
+
+  .receipt-item.total {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+    border: 2px solid var(--green);
+  }
+
+  .receipt-item.total .receipt-item-label {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .receipt-item.total .receipt-item-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--green);
+  }
+
+  .cancellation-policy {
+    background: #fef9c3;
+    border-left: 4px solid var(--yellow);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 28px;
+    font-size: 0.85rem;
+    color: #854d0e;
+  }
+
+  .cancellation-policy strong {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .next-steps {
+    background: #dbeafe;
+    border-left: 4px solid var(--blue);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 28px;
+    font-size: 0.9rem;
+    color: #1d4ed8;
+  }
+
+  .next-steps strong {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .next-steps ul {
+    margin-left: 20px;
+    margin-top: 8px;
+  }
+
+  .next-steps li {
+    margin-bottom: 6px;
+  }
+
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .receipt-btn {
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .divider {
+    height: 1px;
+    background: #f3f4f6;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 600px) {
+    .receipt-card {
+      padding: 24px;
+    }
+
+    .action-buttons {
+      grid-template-columns: 1fr;
+    }
+
+    .receipt-header h1 {
+      font-size: 1.4rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="receipt-container">
+  <div class="receipt-card">
+    <!-- HEADER -->
+    <div class="receipt-header">
+      <div class="success-icon">✅</div>
+      <h1>Booking Confirmed!</h1>
+      <p>Your turf is booked. Have a great time playing!</p>
+      <div class="booking-id">
+        Booking ID: <strong>#{{ booking.id }}</strong>
+      </div>
+    </div>
+
+    <!-- BOOKING DETAILS -->
+    <div class="receipt-section">
+      <div class="receipt-section-title">📍 Booking Details</div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">🏟️ Turf Name</span>
+        <span class="receipt-item-value">{{ booking.turf_name }}</span>
+      </div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">📍 Location</span>
+        <span class="receipt-item-value">{{ booking.location }}</span>
+      </div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">📅 Booking Date</span>
+        <span class="receipt-item-value">{{ booking.booking_date }}</span>
+      </div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">🕐 Time Slot</span>
+        <span class="receipt-item-value">{{ booking.start_time }} – {{ booking.end_time }}</span>
+      </div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">⏱️ Duration</span>
+        <span class="receipt-item-value">{{ booking.duration_hours }} hour{% if booking.duration_hours != 1 %}s{% endif %}</span>
+      </div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">🏃 Sport</span>
+        <span class="receipt-item-value">{{ booking.sport }}</span>
+      </div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">👥 Players</span>
+        <span class="receipt-item-value">{{ booking.players }}</span>
+      </div>
+    </div>
+
+    <!-- PRICE SECTION -->
+    <div class="receipt-section">
+      <div class="receipt-section-title">💰 Price Breakdown</div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">Rate per hour</span>
+        <span class="receipt-item-value">₹{{ booking.total_amount // booking.duration_hours }}</span>
+      </div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">Duration</span>
+        <span class="receipt-item-value">{{ booking.duration_hours }} hours</span>
+      </div>
+      <div class="receipt-item total">
+        <span class="receipt-item-label">Total Amount</span>
+        <span class="receipt-item-value">₹{{ booking.total_amount }}</span>
+      </div>
+    </div>
+
+    <!-- PAYMENT STATUS -->
+    <div class="receipt-section">
+      <div class="receipt-section-title">💳 Payment Status</div>
+      <div class="receipt-item">
+        <span class="receipt-item-label">Payment</span>
+        <span class="badge badge-yellow">{{ booking.payment_status }}</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- CANCELLATION POLICY -->
+    <div class="cancellation-policy">
+      <strong>📋 Cancellation Policy</strong>
+      Free cancellation up to 24 hours before your booking. Cancellations within 24 hours may incur a 50% cancellation fee. No show will result in full charges.
+    </div>
+
+    <!-- NEXT STEPS -->
+    <div class="next-steps">
+      <strong>📝 What's Next?</strong>
+      <ul>
+        <li>✓ A confirmation email has been sent to your registered email</li>
+        <li>✓ Arrive 15 minutes before your booking time</li>
+        <li>✓ Bring your valid ID for verification</li>
+        <li>✓ Contact support if you need any assistance</li>
+      </ul>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-buttons">
+      <a href="/dashboard" class="btn btn-outline receipt-btn" style="justify-content: center;">
+        <i class="fa fa-home"></i> Dashboard
+      </a>
+      <a href="/find-turfs" class="btn btn-green receipt-btn" style="justify-content: center;">
+        <i class="fa fa-search"></i> Book More
+      </a>
+    </div>
+
+    <!-- FOOTER -->
+    <p style="text-align: center; margin-top: 24px; font-size: 0.8rem; color: var(--gray); border-top: 1px solid #f3f4f6; padding-top: 16px;">
+      <i class="fa fa-phone" style="color: var(--green); margin-right: 4px;"></i>
+      Need help? Contact us at 24/7 Customer Support
+    </p>
+  </div>
+</div>
+{% endblock %}
